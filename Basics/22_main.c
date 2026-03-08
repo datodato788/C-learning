@@ -51,44 +51,68 @@
 
 int main()
 {
-    char IBAN[100]; 
-    char code[100]; 
-    char rotated[30];
-    printf("Enter your code: ");
+    char IBAN[100];
+    char rotated[50];
+    char converted[200];
+
+    printf("Enter IBAN: ");
     scanf("%s", IBAN);
 
     int size = strlen(IBAN);
 
-    if (size == 22)
+    if (size != 22)
     {
-        if (IBAN[0] == 'G' && IBAN[1] == 'E')
+        printf("Invalid IBAN (wrong length)\n");
+        return 0;
+    }
+
+    if (IBAN[0] != 'G' || IBAN[1] != 'E')
+    {
+        printf("Invalid IBAN (must start with GE)\n");
+        return 0;
+    }
+
+    for (int i = 0; i < size; i++)
+    {
+        if (!isdigit(IBAN[i]) && !isupper(IBAN[i]))
         {
-            for (size_t i = 0; i < 4; i++)
-            {
-                code[i] = IBAN[i];
-            }
-            code[5] = '\0';
-            code[0] = code[1] - 'A' + 10;
-            code[1] = code[1] - 'A' + 10;
-
-            for (size_t i = 0; i < strlen(code); i++)
-            {
-                for (size_t i = 0; i < size; i++)
-                {
-                    /* code */
-                }
-            }
+            printf("Invalid IBAN (invalid characters)\n");
+            return 0;
         }
+    }
 
+    strcpy(rotated, IBAN + 4);
+    strncat(rotated, IBAN, 4);
+
+    converted[0] = '\0';
+
+    for (int i = 0; i < strlen(rotated); i++)
+    {
+        if (isalpha(rotated[i]))
+        {
+            char temp[3];
+            sprintf(temp, "%d", rotated[i] - 'A' + 10);
+            strcat(converted, temp);
+        }
         else
         {
-            printf("\ninvalid code");
+            int len = strlen(converted);
+            converted[len] = rotated[i];
+            converted[len + 1] = '\0';
         }
     }
-    else
+
+    long long remainder = 0;
+
+    for (int i = 0; i < strlen(converted); i++)
     {
-        printf("\ninvalid code");
+        remainder = (remainder * 10 + (converted[i] - '0')) % 97;
     }
 
-    printf("Reverse: %d\n", code);
+    if (remainder == 1)
+        printf("Valid IBAN\n");
+    else
+        printf("Invalid IBAN\n");
+
+    return 0;
 }
